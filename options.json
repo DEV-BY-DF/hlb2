@@ -1,0 +1,78 @@
+{
+  "threshold_minutes": {
+    "label": "Alarm threshold (minutes)",
+    "type": "integer",
+    "default": 25
+  },
+  "warning_minutes": {
+    "label": "Warning threshold (minutes)",
+    "type": "integer",
+    "default": 10
+  },
+  "critical_minutes": {
+    "label": "Critical threshold (minutes)",
+    "type": "integer",
+    "default": 20
+  },
+  "repeat_seconds": {
+    "label": "Alarm repeat interval (seconds)",
+    "type": "integer",
+    "default": 10
+  },
+  "volume": {
+    "label": "Default volume (0.0–1.0)",
+    "type": "decimal",
+    "default": 1.0
+  },
+  "sound_url": {
+    "label": "Default alarm sound URL (MP3)",
+    "type": "string",
+    "default": ""
+  },
+  "exclude_states": {
+    "label": "Excluded states (comma-separated)",
+    "type": "string",
+    "default": "6,7,8"
+  },
+  "filter_table": {
+    "label": "Filter table name",
+    "type": "string",
+    "default": "sn_customerservice_case"
+  },
+  "enable_news": {
+    "label": "Enable news ticker",
+    "type": "boolean",
+    "default": true
+  },
+  "html_url": {
+    "label": "News source URL (HTML page)",
+    "type": "string",
+    "default": "https://www.dresden-it.de/aktuelle-themen/"
+  },
+  "max_items": {
+    "label": "Max news items",
+    "type": "integer",
+    "default": 10
+  },
+  "timeout_ms": {
+    "label": "HTTP timeout (ms)",
+    "type": "integer",
+    "default": 6000
+  },
+  "mid_name": {
+    "label": "MID Server name (optional)",
+    "type": "string",
+    "default": ""
+  },
+  "separator": {
+    "label": "Ticker separator",
+    "type": "string",
+    "default": " ... - • -  "
+  },
+  "prefix": {
+    "label": "Ticker prefix",
+    "type": "string",
+    "default": "News"
+  }
+}
+
