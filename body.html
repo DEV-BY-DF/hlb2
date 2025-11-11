@@ -1,0 +1,523 @@
+<div class="l1-mini-wrapper" 
+     ng-class="{'standalone': c.standaloneCardKey}"
+     ng-style="c.wrapperMergedStyle">
+
+  <!-- MULTI-VIEW / Dashboard -->
+  <div ng-if="!c.standaloneCardKey">
+
+    <!-- Header-Bild -->
+    <div class="header-image">
+      <img
+        src="https://dev353320.service-now.com/sys_attachment.do?sys_id=0e564c2d93cd721000f8f9f7dd03d6a6"
+        alt="Header" />
+    </div>
+
+    <!-- News-Ticker -->
+    <div class="news-ticker" ng-if="data.ticker_text">
+      <div class="news-ticker-inner">
+        <div class="ticker">
+          <div class="ticker__track">
+            <span class="ticker__chunk">
+              {{ data.ticker_text }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+            <span class="ticker__chunk" aria-hidden="true">
+              {{ data.ticker_text }}
+            </span>
+          </div>
+        </div>
+        <div class="news-separator"></div>
+      </div>
+    </div>
+
+    <!-- News-Fehler -->
+    <div class="news-error" ng-if="data.news_error">
+      {{ data.news_error }}
+    </div>
+
+    <!-- Icons oben rechts -->
+    <div class="sound-indicator"
+         ng-click="c.toggleSound()"
+         ng-class="{'sound-active': c.soundEnabled}"
+         title="Toggle alarm sound">
+      {{ c.soundEnabled ? '🔊' : '🔇' }}
+    </div>
+
+    <div class="settings-indicator"
+         ng-click="c.toggleSettings()"
+         title="Alarm / Card Settings">
+      ⚙️
+    </div>
+
+    <div class="design-indicator"
+         ng-click="c.toggleDesignPanel()"
+         title="Design / Look & Feel">
+      +
+    </div>
+
+    <!-- Settings-Panel (Alarm + Card-Visibility + Sound) -->
+    <div class="config-bar" ng-show="c.showSettings">
+
+      <div class="config-item">
+        <span class="config-text" id="label-threshold">Sound (min):</span>
+        <input id="thresholdMinutes"
+               type="number"
+               min="1"
+               ng-model="c.thresholdMinutes"
+               class="config-input"
+               aria-labelledby="label-threshold"
+               placeholder="25" />
+      </div>
+
+      <div class="config-item">
+        <span class="config-text" id="label-warning">Yellow (min):</span>
+        <input id="warningMinutes"
+               type="number"
+               min="1"
+               ng-model="c.warningMinutes"
+               class="config-input"
+               aria-labelledby="label-warning"
+               placeholder="10" />
+      </div>
+
+      <div class="config-item">
+        <span class="config-text" id="label-critical">Blue (min):</span>
+        <input id="criticalMinutes"
+               type="number"
+               min="1"
+               ng-model="c.criticalMinutes"
+               class="config-input"
+               aria-labelledby="label-critical"
+               placeholder="20" />
+      </div>
+
+      <div class="config-item">
+        <span class="config-text" id="label-repeat">Repeat (s):</span>
+        <input id="repeatSeconds"
+               type="number"
+               min="1"
+               ng-model="c.repeatSeconds"
+               class="config-input"
+               aria-labelledby="label-repeat"
+               placeholder="30" />
+      </div>
+
+      <div class="config-item config-item-range">
+        <span class="config-text" id="label-volume">Volume:</span>
+        <input id="volumeSelection"
+               type="range"
+               min="0"
+               max="1"
+               step="0.05"
+               ng-model="c.volumeSelection"
+               class="config-range"
+               aria-labelledby="label-volume" />
+        <span class="config-range-value">
+          {{ (c.volumeSelection * 100) | number:0 }}%
+        </span>
+      </div>
+
+      <div class="config-item">
+        <span class="config-text" id="label-alarm">Sound MP3:</span>
+        <input id="alarmFile"
+               type="file"
+               accept="audio/mpeg"
+               onchange="angular.element(this).scope().c.loadMp3File(this.files[0])"
+               aria-labelledby="label-alarm" />
+      </div>
+
+      <div class="config-item">
+        <span class="config-text">Cards:</span>
+        <label><input type="checkbox" ng-model="c.cardVisibility.datetime" /> Time</label>
+        <label><input type="checkbox" ng-model="c.cardVisibility.unassigned" /> Unassigned</label>
+        <label><input type="checkbox" ng-model="c.cardVisibility.oldest" /> Oldest</label>
+        <label><input type="checkbox" ng-model="c.cardVisibility.filters" /> Filters</label>
+        <label><input type="checkbox" ng-model="c.cardVisibility.custom" /> Custom</label>
+      </div>
+    </div>
+
+    <!-- Design-Panel (Look & Feel) -->
+    <div class="design-bar" ng-show="c.showDesign">
+
+      <div class="config-item">
+        <span class="config-text">Target:</span>
+        <select ng-model="c.designTarget"
+                class="config-select">
+          <option value="global">Global theme (all)</option>
+          <option value="wrapper">Page background</option>
+          <option value="allCards">All cards</option>
+          <option value="datetime">Time card</option>
+          <option value="unassigned">Unassigned card</option>
+          <option value="oldest">Oldest card</option>
+          <option value="filters">Filter cards</option>
+          <option value="custom">Custom cards</option>
+        </select>
+      </div>
+
+      <div class="config-item">
+        <span class="config-text">Font size:</span>
+        <input type="number"
+               min="16"
+               max="72"
+               ng-model="c.currentDesign.fontSize"
+               class="config-input" />
+      </div>
+
+      <div class="config-item">
+        <span class="config-text">Font family:</span>
+        <input type="text"
+               ng-model="c.currentDesign.fontFamily"
+               class="config-input config-input-wide"
+               placeholder='"Segoe UI", system, sans-serif' />
+      </div>
+
+      <div class="config-item">
+        <span class="config-text">Text color:</span>
+        <input type="color"
+               ng-model="c.currentDesign.textColor"
+               class="config-input" />
+      </div>
+
+      <div class="config-item">
+        <span class="config-text">Card background:</span>
+        <input type="color"
+               ng-model="c.currentDesign.cardBg"
+               class="config-input" />
+      </div>
+
+      <div class="config-item">
+        <span class="config-text">Label color:</span>
+        <input type="color"
+               ng-model="c.currentDesign.labelColor"
+               class="config-input" />
+      </div>
+
+      <div class="config-item">
+        <span class="config-text">Value color:</span>
+        <input type="color"
+               ng-model="c.currentDesign.valueColor"
+               class="config-input" />
+      </div>
+
+      <div class="config-item">
+        <button type="button"
+                class="btn-apply-design"
+                ng-click="c.applyDesignTarget()">
+          Apply to target
+        </button>
+      </div>
+    </div>
+
+    <!-- Haupt-Cards -->
+    <div class="cards cards-main">
+
+      <!-- Date & Time -->
+      <div class="card datetime-card"
+           ng-if="c.cardVisibility.datetime"
+           ng-click="c.openCard('datetime')"
+           ng-style="c.getCardStyle('datetime')">
+        <div class="datetime-date-large">{{ c.dateStr }}</div>
+        <div class="datetime-time-large">{{ c.timeStr }}</div>
+      </div>
+
+      <!-- Unassigned -->
+      <div class="card"
+           ng-if="c.cardVisibility.unassigned"
+           ng-click="c.openCard('unassigned')"
+           ng-style="c.getCardStyle('unassigned')">
+        <div class="label">Unassigned</div>
+        <div class="value">{{ data.unassignedCount || 0 }}</div>
+      </div>
+
+      <!-- Oldest -->
+      <div class="card"
+           ng-if="c.cardVisibility.oldest"
+           ng-click="c.openCard('oldest')"
+           title="{{ data.oldestShortDescription }}"
+           ng-class="[c.cardBgClass, {'critical': c.isOverThreshold}]"
+           ng-style="c.getCardStyle('oldest')">
+        <div class="label">Oldest</div>
+        <div class="value">{{ c.ageFormatted || '00:00:00' }}</div>
+      </div>
+
+      <!-- My Filters (persönliche Filter) -->
+      <div class="card my-filters-card"
+           ng-if="c.cardVisibility.filters &&
+                  data.my_filters &&
+                  data.my_filters.length"
+           ng-style="c.getCardStyle('filters')">
+        <div class="my-filters-header">
+          <span class="my-filters-icon">👤</span>
+          <span class="label my-filters-label">My Filters</span>
+        </div>
+        <div class="filters-list">
+          <div class="filter-row"
+               ng-repeat="f in data.my_filters"
+               ng-click="c.openFilterList(f)">
+            <span class="filter-name">{{ f.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team / Saved Filters (global + user) -->
+      <div class="card team-filters-card"
+           ng-if="c.cardVisibility.filters &&
+                  data.saved_filters &&
+                  data.saved_filters.length"
+           ng-style="c.getCardStyle('filters')">
+        <div class="my-filters-header">
+          <span class="my-filters-icon">👥</span>
+          <span class="label my-filters-label">Team Filters</span>
+        </div>
+        <div class="filters-list">
+          <div class="filter-row"
+               ng-repeat="f in data.saved_filters"
+               ng-click="c.openFilterList(f)">
+            <span class="filter-name">{{ f.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Cards -->
+      <div class="card"
+           ng-repeat="card in c.customCards"
+           ng-if="c.cardVisibility.custom && card.enabled"
+           ng-style="c.getCardStyle('custom')">
+        <div class="label">{{ card.title }}</div>
+        <div class="value">{{ c.getCustomValue(card) }}</div>
+      </div>
+
+    </div><!-- .cards-main -->
+
+    <!-- Custom Card Editor -->
+    <div class="custom-cards-editor">
+
+      <div class="custom-cards-header">
+        <span class="config-text">Custom Cards:</span>
+        <button class="btn-add-card"
+                type="button"
+                ng-click="c.addCustomCard()">
+          + Add Card
+        </button>
+      </div>
+
+      <div class="custom-card-row"
+           ng-repeat="card in c.customCards">
+
+        <div class="custom-card-col">
+          <label class="custom-label">Title</label>
+          <input type="text"
+                 ng-model="card.title"
+                 class="config-input config-input-wide" />
+        </div>
+
+        <div class="custom-card-col">
+          <label class="custom-label">Mode</label>
+          <select ng-model="card.mode"
+                  class="config-select">
+            <option value="static">Static text</option>
+            <option value="data">From data.*</option>
+          </select>
+        </div>
+
+        <div class="custom-card-col" ng-if="card.mode === 'data'">
+          <label class="custom-label">data key</label>
+          <input type="text"
+                 ng-model="card.key"
+                 class="config-input"
+                 placeholder="z. B. unassignedCount" />
+        </div>
+
+        <div class="custom-card-col" ng-if="card.mode === 'static'">
+          <label class="custom-label">Text</label>
+          <input type="text"
+                 ng-model="card.value"
+                 class="config-input config-input-wide"
+                 placeholder="Beliebiger Inhalt" />
+        </div>
+
+        <div class="custom-card-actions">
+          <button type="button"
+                  class="btn-toggle-card"
+                  ng-click="c.toggleCustomCard(card)">
+            {{ card.enabled ? 'Hide' : 'Show' }}
+          </button>
+          <button type="button"
+                  class="btn-remove-card"
+                  ng-click="c.removeCustomCard(card)">
+            ✕
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- Ende Multi-View -->
+
+
+  <!-- SINGLE-VIEWS -->
+
+  <!-- Single: Date & Time -->
+  <div class="cards cards-single"
+       ng-if="c.standaloneCardKey === 'datetime'">
+    <div class="card datetime-card datetime-card-single"
+         ng-style="c.getCardStyle('datetime')">
+      <div class="datetime-date-large">{{ c.dateStr }}</div>
+      <div class="datetime-time-large">{{ c.timeStr }}</div>
+    </div>
+  </div>
+
+  <!-- Single: Unassigned -->
+  <div class="cards cards-single"
+       ng-if="c.standaloneCardKey === 'unassigned'">
+    <div class="card"
+         ng-style="c.getCardStyle('unassigned')">
+      <div class="label">Unassigned</div>
+      <div class="value">{{ data.unassignedCount || 0 }}</div>
+    </div>
+  </div>
+
+  <!-- Single: Oldest -->
+  <div class="cards cards-single"
+       ng-if="c.standaloneCardKey === 'oldest'">
+
+    <div class="sound-indicator"
+         ng-click="c.toggleSound()"
+         ng-class="{'sound-active': c.soundEnabled}"
+         title="Toggle alarm sound">
+      {{ c.soundEnabled ? '🔊' : '🔇' }}
+    </div>
+
+    <div class="settings-indicator"
+         ng-click="c.toggleSettings()"
+         title="Alarm / Threshold Settings">
+      ⚙️
+    </div>
+
+    <div class="design-indicator"
+         ng-click="c.toggleDesignPanel()"
+         title="Design / Layout">
+      +
+    </div>
+
+    <div class="config-bar" ng-show="c.showSettings">
+      <div class="config-item">
+        <span class="config-text">Sound (min):</span>
+        <input type="number"
+               min="1"
+               ng-model="c.thresholdMinutes"
+               class="config-input"
+               placeholder="25" />
+      </div>
+      <div class="config-item">
+        <span class="config-text">Yellow (min):</span>
+        <input type="number"
+               min="1"
+               ng-model="c.warningMinutes"
+               class="config-input"
+               placeholder="10" />
+      </div>
+      <div class="config-item">
+        <span class="config-text">Blue (min):</span>
+        <input type="number"
+               min="1"
+               ng-model="c.criticalMinutes"
+               class="config-input"
+               placeholder="20" />
+      </div>
+      <div class="config-item">
+        <span class="config-text">Repeat (s):</span>
+        <input type="number"
+               min="1"
+               ng-model="c.repeatSeconds"
+               class="config-input"
+               placeholder="30" />
+      </div>
+      <div class="config-item config-item-range">
+        <span class="config-text">Volume:</span>
+        <input type="range"
+               min="0"
+               max="1"
+               step="0.05"
+               ng-model="c.volumeSelection"
+               class="config-range" />
+        <span class="config-range-value">
+          {{ (c.volumeSelection * 100) | number:0 }}%
+        </span>
+      </div>
+    </div>
+
+    <div class="design-bar" ng-show="c.showDesign">
+      <div class="config-item">
+        <span class="config-text">Target:</span>
+        <select ng-model="c.designTarget"
+                class="config-select">
+          <option value="global">Global theme (all)</option>
+          <option value="wrapper">Page background</option>
+          <option value="allCards">All cards</option>
+          <option value="datetime">Time card</option>
+          <option value="unassigned">Unassigned card</option>
+          <option value="oldest">Oldest card</option>
+          <option value="filters">Filter cards</option>
+          <option value="custom">Custom cards</option>
+        </select>
+      </div>
+      <div class="config-item">
+        <span class="config-text">Font size:</span>
+        <input type="number"
+               min="16"
+               max="72"
+               ng-model="c.currentDesign.fontSize"
+               class="config-input" />
+      </div>
+      <div class="config-item">
+        <span class="config-text">Font family:</span>
+        <input type="text"
+               ng-model="c.currentDesign.fontFamily"
+               class="config-input config-input-wide" />
+      </div>
+      <div class="config-item">
+        <span class="config-text">Text color:</span>
+        <input type="color"
+               ng-model="c.currentDesign.textColor"
+               class="config-input" />
+      </div>
+      <div class="config-item">
+        <span class="config-text">Card background:</span>
+        <input type="color"
+               ng-model="c.currentDesign.cardBg"
+               class="config-input" />
+      </div>
+      <div class="config-item">
+        <span class="config-text">Label color:</span>
+        <input type="color"
+               ng-model="c.currentDesign.labelColor"
+               class="config-input" />
+      </div>
+      <div class="config-item">
+        <span class="config-text">Value color:</span>
+        <input type="color"
+               ng-model="c.currentDesign.valueColor"
+               class="config-input" />
+      </div>
+      <div class="config-item">
+        <button type="button"
+                class="btn-apply-design"
+                ng-click="c.applyDesignTarget()">
+          Apply to target
+        </button>
+      </div>
+    </div>
+
+    <div class="card"
+         title="{{ data.oldestShortDescription }}"
+         ng-class="[c.cardBgClass, {'critical': c.isOverThreshold}]"
+         ng-style="c.getCardStyle('oldest')">
+      <div class="label">Oldest</div>
+      <div class="value">{{ c.ageFormatted || '00:00:00' }}</div>
+    </div>
+  </div>
+
+  <!-- Audio-Element -->
+  <audio id="alarm-audio" preload="auto"></audio>
+</div>
+
